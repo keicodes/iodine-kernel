@@ -14,7 +14,7 @@ IODINE_SIGNING_KEY="certs/kernel_key.pem"
 if [ ! -d "linux" ]; then
 	echo " [*] Fetching kernel $IODINE_LINUX_VERSION"
 
-	git clone -b $IODINE_LINUX_VERSION --single-branch $IODINE_LINUX_REPOSITORY
+	git clone -b $IODINE_LINUX_VERSION --single-branch --depth 1 $IODINE_LINUX_REPOSITORY
 else
 	echo " [-] Kernel folder found"
 fi
