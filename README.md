@@ -31,7 +31,7 @@ If you wish to edit the make flags, use `IODINE_MAKE_FLAGS`.
 
 After pointing to the right GCC bin, just use:
 ```sh
-sh build.sh
+./build.sh
 ```
 
 To sign the modules, proceed to update the option in the build.sh file to `IODINE_SIGNING="y"` and use `IODINE_SIGNING_KEY` to assign the signing key path.
