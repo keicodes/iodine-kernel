@@ -58,12 +58,16 @@ iodine-apply-patches() {
 }
 
 iodine-set-config() {
-	if [ -f "$IODINE_LINUX_CONFIG" ]; then
-		cp $IODINE_LINUX_CONFIG .config
+	if [ -f "linux/.config" ]; then
+		echo "  - found an existing config, skipping"
 	else
-		echo "Couldn't find any config, exiting"
+		if [ -f "$IODINE_LINUX_CONFIG" ]; then
+			cp $IODINE_LINUX_CONFIG .config
+		else
+			echo "  - couldn't find any config, exiting"
 
-		exit 1
+			exit 1
+		fi
 	fi
 }
 
@@ -71,7 +75,7 @@ iodine-set-config() {
 iodine-build() {
 	echo " [*] Building"
 
-	iodine-set-config()
+	iodine-set-config
 
 	cd linux
 
@@ -98,8 +102,6 @@ iodine-build() {
 
 	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_CONFIG_PACKAGE
 }
-
-#	TODO: use getops to build a comprehensive list of usable options
 
 iodine-check-compiler
 
