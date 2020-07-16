@@ -11,16 +11,17 @@ IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 IODINE_COMPILER="gcc"
 IODINE_MAKE_FLAGS="-j`nproc`"
 
-IODINE_SIGNING="n"
-IODINE_SIGNING_KEY="certs/kernel_key.pem"
+IODINE_CONFIG_NATIVE="y"
+IODINE_CONFIG_SIGNING="n"
+IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
 
 #	If the compiler path is wrong, fall back to GCC
 
 if ! type $IODINE_COMPILER >/dev/null 2>&1; then
-	echo "  - No compiler found for $IODINE_COMPILER, falling back to GCC"
+	echo "  - no compiler found for $IODINE_COMPILER, falling back to GCC"
 
 	if ! type gcc >/dev/null 2>&1; then
-		echo "  - Couldn't find GCC, is it installed?"
+		echo "  - couldn't find GCC, is it installed?"
 	else
 		IODINE_COMPILER="gcc"
 	fi
@@ -40,9 +41,9 @@ else
 	cd linux
 
 	if [ `make kernelversion` == ${IODINE_LINUX_VERSION[@]:1} ]; then
-		echo "  - Kernel version matches"
+		echo "  - kernel version matches"
 	else
-		echo "  - It appears to be a different kernel version, exiting"
+		echo "  - it appears to be a different kernel version, exiting"
 
 		exit 1
 	fi
@@ -62,15 +63,27 @@ else
 	exit 1
 fi
 
-if [ $IODINE_SIGNING = "y" ]; then
-	echo " [*] Signing enabled"
+echo " [*] Building"
+
+if [ $IODINE_CONFIG_NATIVE == "y" ]; then
+	echo "  - using $IODINE_COMPILER compiler set to native CPU, make $IODINE_MAKE_FLAGS"
+
+	scripts/config --enable CONFIG_MNATIVE
+	scripts/config --disable GENERIC_CPU
+else
+	echo "  - using $IODINE_COMPILER compiler set to generic CPU, make $IODINE_MAKE_FLAGS"
+
+	scripts/config --enable GENERIC_CPU
+	scripts/config --disable CONFIG_MNATIVE
+fi
+
+if [ $IODINE_CONFIG_SIGNING = "y" ]; then
+	echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
 
 	scripts/config --enable CONFIG_MODULE_SIG_ALL
-	scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_SIGNING_KEY
+	scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
 else
 	scripts/config --disable CONFIG_MODULE_SIG_ALL
 fi
-
-echo " [*] Building (using $IODINE_COMPILER $IODINE_MAKE_FLAGS)"
 
 make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" bindeb-pkg
