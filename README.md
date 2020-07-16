@@ -39,7 +39,7 @@ for a RPM package, use:
 Omit `--native` to build a generic kernel.
 
 Complete usage `./build.sh -h`:
-```sh
+```
   -h, --help
   Prints these options
 
