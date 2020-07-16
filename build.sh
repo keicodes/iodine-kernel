@@ -8,11 +8,20 @@ IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 
 IODINE_COMPILER="gcc"
 IODINE_MAKE_FLAGS="-j`nproc`"
+IODINE_MAKE_PACKAGE="bindeb-pkg"
 
-IODINE_CONFIG_PACKAGE="bindeb-pkg"
 IODINE_CONFIG_NATIVE="y"
 IODINE_CONFIG_SIGNING="n"
 IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
+
+#	Command line tool usage info
+iodine-usage() {
+	echo -e "Usage:\n"
+	echo -e "  -h, --help				Prints these options\n"
+	echo -e "  -g, --get-kernel			Clones the Linux repository only\n"
+	echo -e "  -p, --apply-patches			Apply patches only\n"
+	echo -e "  -b, --build				Runs over all the commands to build the kernel\n"
+}
 
 #	If the compiler path is wrong, fall back to GCC
 iodine-check-compiler() {
@@ -73,19 +82,19 @@ iodine-set-config() {
 
 #	Start the build
 iodine-build() {
-	echo " [*] Building"
+	echo " [*] Building $IODINE_MAKE_PACKAGE"
 
 	iodine-set-config
 
 	cd linux
 
 	if [ $IODINE_CONFIG_NATIVE == "y" ]; then
-		echo "  - using $IODINE_COMPILER compiler set to native CPU, make $IODINE_MAKE_FLAGS"
+		echo "  - using $IODINE_COMPILER, CPU optimizations set to native, make $IODINE_MAKE_FLAGS"
 
 		scripts/config --enable CONFIG_MNATIVE
 		scripts/config --disable GENERIC_CPU
 	else
-		echo "  - using $IODINE_COMPILER compiler set to generic CPU, make $IODINE_MAKE_FLAGS"
+		echo "  - using $IODINE_COMPILER, CPU optimizations set to generic, make $IODINE_MAKE_FLAGS"
 
 		scripts/config --enable GENERIC_CPU
 		scripts/config --disable CONFIG_MNATIVE
@@ -100,14 +109,58 @@ iodine-build() {
 		scripts/config --disable CONFIG_MODULE_SIG_ALL
 	fi
 
-	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_CONFIG_PACKAGE
+	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_MAKE_PACKAGE
 }
 
-iodine-check-compiler
+getopt -T &>/dev/null
 
-iodine-get-kernel
+OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,deb,rpm,build,help" -- "$@"`
 
-iodine-apply-patches
+if [ $? != 0 ] || [ -z $1 ]; then iodine-usage >&2; exit 1; fi
 
-iodine-build
+eval set -- "$OPTS"
+
+while true;
+do
+	case "$1" in
+		-g|--get-kernel)
+			iodine-get-kernel
+
+			break;;
+		-p|--apply-patches)
+			iodine-apply-patches
+
+			break;;
+		--deb)
+			IODINE_MAKE_PACKAGE="bindeb-pkg"
+
+			shift;;
+		--rpm)
+			IODINE_MAKE_PACKAGE="binrpm-pkg"
+
+			shift;;
+		-b|--build)
+			iodine-check-compiler
+
+			iodine-get-kernel
+
+			iodine-apply-patches
+
+			IODINE_BUILD="y"
+
+			shift;;
+		-h|--help|?)
+			iodine-usage
+
+			break;;
+		--)
+			shift
+
+			break;;
+	esac
+done
+
+if [[ -n $IODINE_BUILD ]]; then
+	iodine-build
+fi
 

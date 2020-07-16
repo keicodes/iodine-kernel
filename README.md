@@ -1,6 +1,6 @@
 # :zap: Iodine Kernel
 
-A simple performance oriented build of the Linux kernel.
+Lean and simple performance oriented build of the Linux kernel.
 
 [![license: WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
 
@@ -29,9 +29,29 @@ Before jumping to the actual build command, you may wish to edit the `build.sh` 
 
 If you wish to edit the make flags, use `IODINE_MAKE_FLAGS`.
 
-After pointing to the right GCC bin, just use:
+To build a DEB package, use:
 ```sh
-./build.sh
+./build.sh --deb --build
+```
+
+for a RPM package, use:
+```sh
+./build.sh --rpm --build
+```
+
+Complete usage `./build -h`:
+```sh
+  -h, --help
+  Prints these options
+
+  -g, --get-kernel
+  Clones the Linux repository only
+
+  -p, --apply-patches
+  Apply patches only
+
+  -b, --build
+  Runs over all the commands to build the kernel
 ```
 
 To sign the modules, proceed to update the option in the build.sh file to `IODINE_SIGNING="y"` and use `IODINE_SIGNING_KEY` to assign the signing key path.
