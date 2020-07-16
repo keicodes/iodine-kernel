@@ -14,7 +14,7 @@ A simple performance oriented build of the Linux kernel.
 - Westwood+ TCP Congestion Control + FQ_CODEL Queue Scheduler
 - Disabled several hardening and debugging options
 - Low swappiness value
-- GCC optimization -O3
+- GCC optimization -O3 -march=native, graysky2's patch
 
 
 ### Releases
