@@ -29,9 +29,9 @@ Before jumping to the actual build command, you may wish to edit the `build.sh` 
 
 If you wish to edit the make flags, use `IODINE_MAKE_FLAGS`.
 
-To build a DEB package, use:
+To build a DEB package (you could omit --deb as it's the default option), use:
 ```sh
-./build.sh --deb --build
+./build.sh --deb--build
 ```
 
 for a RPM package, use:
@@ -39,7 +39,7 @@ for a RPM package, use:
 ./build.sh --rpm --build
 ```
 
-Complete usage `./build -h`:
+Complete usage `./build.sh -h`:
 ```sh
   -h, --help
   Prints these options
