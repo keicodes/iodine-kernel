@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
 echo " [*] Setting environment"
 
 IODINE_LINUX_REPOSITORY="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-IODINE_LINUX_VERSION="v5.7.8"
+IODINE_LINUX_VERSION="v5.7.9"
 
-IODINE_COMPILER="gcc-10"
+IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/[^.]*$/x/'`
+IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
+
+IODINE_COMPILER="gcc"
 IODINE_MAKE_FLAGS="-j`nproc`"
 
 IODINE_SIGNING="n"
@@ -29,19 +32,35 @@ if [ ! -d "linux" ]; then
 	echo " [*] Fetching kernel $IODINE_LINUX_VERSION"
 
 	git clone -b $IODINE_LINUX_VERSION --single-branch --depth 1 $IODINE_LINUX_REPOSITORY
+
+	cd linux
 else
 	echo " [*] Kernel folder found"
+
+	cd linux
+
+	if [ `make kernelversion` == ${IODINE_LINUX_VERSION[@]:1} ]; then
+		echo "  - Kernel version matches"
+	else
+		echo "  - It appears to be a different kernel version, exiting"
+
+		exit 1
+	fi
 fi
 
-echo " [*] Applying patches"
+echo " [*] Applying patches $IODINE_LINUX_BRANCH"
 
-for patch in patches/*.patch; do
-	patch -sNp1 -dlinux < $patch
+for patch in ../patches/$IODINE_LINUX_BRANCH/*.patch; do
+	patch -sNp1 < $patch
 done
 
-cp "configs/$IODINE_LINUX_VERSION" linux/.config
+if [ -f "../$IODINE_LINUX_CONFIG" ]; then
+	cp ../$IODINE_LINUX_CONFIG .config
+else
+	echo "Couldn't find any config, exiting"
 
-cd linux
+	exit 1
+fi
 
 if [ $IODINE_SIGNING = "y" ]; then
 	echo " [*] Signing enabled"
