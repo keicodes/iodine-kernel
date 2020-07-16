@@ -75,8 +75,8 @@ iodine-set-config() {
 	if [ -f "linux/.config" ]; then
 		echo "  - found an existing config, skipping"
 	else
-		if [ -f "$IODINE_LINUX_CONFIG" ]; then
-			cp $IODINE_LINUX_CONFIG .config
+		if [ -f $IODINE_LINUX_CONFIG ]; then
+			cp $IODINE_LINUX_CONFIG "linux/.config"
 		else
 			echo "  - couldn't find any config, exiting"
 
