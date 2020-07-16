@@ -7,7 +7,7 @@ IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/[^.]*$/x/'`
 IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 
 IODINE_CONFIG_PACKAGE="bindeb-pkg"
-IODINE_CONFIG_NATIVE="n"
+IODINE_CONFIG_GENERIC="n"
 IODINE_CONFIG_SIGNING="n"
 IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
 
@@ -21,10 +21,10 @@ iodine-usage() {
 	echo -e "Usage:\n"
 	echo -e "  -h, --help				Prints these options\n"
 	echo -e "  -g, --get-kernel			Clones the Linux repository only\n"
-	echo -e "  -p, --apply-patches			Apply patches only\n"
+	echo -e "  -p, --apply-patches			Applies patches only\n"
 	echo -e "  -b, --build				Runs over all the commands to build the kernel\n"
 	echo -e "  --deb, --rpm				Packages to either DEB or RPM\n"
-	echo -e "  --native				Optimizes for the detected CPU\n"
+	echo -e "  --generic				Optimizes for generic x86_64 cpus\n"
 	echo -e "  --sign-modules			Signing facility"
 }
 
@@ -93,16 +93,16 @@ iodine-build() {
 
 	cd linux
 
-	if [ $IODINE_CONFIG_NATIVE == "y" ]; then
-		echo "  - using $IODINE_COMPILER, CPU optimizations set to native, make $IODINE_MAKE_FLAGS"
-
-		scripts/config --enable CONFIG_MNATIVE
-		scripts/config --disable GENERIC_CPU
-	else
+	if [ $IODINE_CONFIG_GENERIC == "y" ]; then
 		echo "  - using $IODINE_COMPILER, CPU optimizations set to generic, make $IODINE_MAKE_FLAGS"
 
 		scripts/config --enable GENERIC_CPU
 		scripts/config --disable CONFIG_MNATIVE
+	else
+		echo "  - using $IODINE_COMPILER, CPU optimizations set to native, make $IODINE_MAKE_FLAGS"
+
+		scripts/config --enable CONFIG_MNATIVE
+		scripts/config --disable GENERIC_CPU
 	fi
 
 	if [ $IODINE_CONFIG_SIGNING = "y" ]; then
@@ -119,7 +119,7 @@ iodine-build() {
 
 getopt -T &>/dev/null
 
-OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,native,sign-modules,deb,rpm,build,help" -- "$@"`
+OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,generic,sign-modules,deb,rpm,build,help" -- "$@"`
 
 if [ $? != 0 ] || [ -z $1 ]; then iodine-usage >&2; exit 1; fi
 
@@ -136,8 +136,8 @@ do
 			iodine-apply-patches
 
 			break;;
-		--native)
-			IODINE_CONFIG_NATIVE="y"
+		--generic)
+			IODINE_CONFIG_GENERIC="y"
 
 			shift;;
 		--sign-modules)

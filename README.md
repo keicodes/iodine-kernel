@@ -28,15 +28,15 @@ Optionally, before jumping to the actual build, you may wish to edit the `build.
 
 To build a DEB package (you could omit --deb as it's the default option), use:
 ```sh
-./build.sh --deb --native --build
+./build.sh --deb --build
 ```
 
 for a RPM package, use:
 ```sh
-./build.sh --rpm --native --build
+./build.sh --rpm --build
 ```
 
-Omit `--native` to build a generic kernel.
+Append `--generic` to build a generic kernel.
 
 Complete usage `./build.sh -h`:
 ```
@@ -47,7 +47,7 @@ Complete usage `./build.sh -h`:
   Clones the Linux repository only
 
   -p, --apply-patches
-  Apply patches only
+  Applies patches only
 
   -b, --build
   Runs over all the commands to build the kernel
@@ -55,8 +55,8 @@ Complete usage `./build.sh -h`:
   --deb, --rpm
   Packages to either DEB or RPM
 
-  --native
-  Optimizes for the detected CPU
+  --generic
+  Optimizes for generic x86_64 cpus
 
   --sign-modules
   Signing facility
