@@ -67,7 +67,7 @@ iodine-apply-patches() {
 	echo " [*] Applying patches $IODINE_LINUX_BRANCH"
 
 	for patch in patches/$IODINE_LINUX_BRANCH/*.patch; do
-		git apply --numstat --directory linux $patch
+		patch -sNp1 -dlinux < $patch
 	done
 }
 
