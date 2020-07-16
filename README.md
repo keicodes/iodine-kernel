@@ -14,7 +14,7 @@ Lean and simple performance oriented build of the Linux kernel.
 - Westwood+ TCP Congestion Control + FQ_CODEL Queue Scheduler
 - Disabled several hardening and debugging options
 - Low swappiness value
-- GCC optimization -O3 -march=native, graysky2's patch
+- GCC optimization -O3, graysky2's patch
 
 
 ### Releases
@@ -24,20 +24,19 @@ Compiled and packaged on **Debian Buster** using **GCC 10.1.0**
 
 ### Build
 
-Before jumping to the actual build command, you may wish to edit the `build.sh` file and add your correct GCC bin path to the compiler variable, which might commonly be:
-`IODINE_COMPILER="gcc"`
-
-If you wish to edit the make flags, use `IODINE_MAKE_FLAGS`.
+Optionally, before jumping to the actual build, you may wish to edit the `build.sh` to set your personal configs under `Configurations`.
 
 To build a DEB package (you could omit --deb as it's the default option), use:
 ```sh
-./build.sh --deb--build
+./build.sh --deb --native --build
 ```
 
 for a RPM package, use:
 ```sh
-./build.sh --rpm --build
+./build.sh --rpm --native --build
 ```
+
+Omit `--native` to build a generic kernel.
 
 Complete usage `./build.sh -h`:
 ```sh
@@ -52,6 +51,15 @@ Complete usage `./build.sh -h`:
 
   -b, --build
   Runs over all the commands to build the kernel
+
+  --deb, --rpm
+  Packages to either DEB or RPM
+
+  --native
+  Optimizes for the detected CPU
+
+  --sign-modules
+  Signing facility
 ```
 
 To sign the modules, proceed to update the option in the build.sh file to `IODINE_SIGNING="y"` and use `IODINE_SIGNING_KEY` to assign the signing key path.

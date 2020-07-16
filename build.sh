@@ -6,13 +6,15 @@ IODINE_LINUX_VERSION="v5.7.9"
 IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/[^.]*$/x/'`
 IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 
-IODINE_COMPILER="gcc"
-IODINE_MAKE_FLAGS="-j`nproc`"
-IODINE_MAKE_PACKAGE="bindeb-pkg"
-
-IODINE_CONFIG_NATIVE="y"
+IODINE_CONFIG_PACKAGE="bindeb-pkg"
+IODINE_CONFIG_NATIVE="n"
 IODINE_CONFIG_SIGNING="n"
 IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
+
+#	Configurations
+
+IODINE_COMPILER="gcc"
+IODINE_MAKE_FLAGS="-j`nproc`"
 
 #	Command line tool usage info
 iodine-usage() {
@@ -21,6 +23,9 @@ iodine-usage() {
 	echo -e "  -g, --get-kernel			Clones the Linux repository only\n"
 	echo -e "  -p, --apply-patches			Apply patches only\n"
 	echo -e "  -b, --build				Runs over all the commands to build the kernel\n"
+	echo -e "  --deb, --rpm				Packages to either DEB or RPM\n"
+	echo -e "  --native				Optimizes for the detected CPU\n"
+	echo -e "  --sign-modules			Signing facility"
 }
 
 #	If the compiler path is wrong, fall back to GCC
@@ -82,7 +87,7 @@ iodine-set-config() {
 
 #	Start the build
 iodine-build() {
-	echo " [*] Building $IODINE_MAKE_PACKAGE"
+	echo " [*] Building $IODINE_CONFIG_PACKAGE"
 
 	iodine-set-config
 
@@ -109,12 +114,12 @@ iodine-build() {
 		scripts/config --disable CONFIG_MODULE_SIG_ALL
 	fi
 
-	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_MAKE_PACKAGE
+	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_CONFIG_PACKAGE
 }
 
 getopt -T &>/dev/null
 
-OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,deb,rpm,build,help" -- "$@"`
+OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,native,sign-modules,deb,rpm,build,help" -- "$@"`
 
 if [ $? != 0 ] || [ -z $1 ]; then iodine-usage >&2; exit 1; fi
 
@@ -131,12 +136,20 @@ do
 			iodine-apply-patches
 
 			break;;
+		--native)
+			IODINE_CONFIG_NATIVE="y"
+
+			shift;;
+		--sign-modules)
+			IODINE_CONFIG_SIGNING="y"
+
+			shift;;
 		--deb)
-			IODINE_MAKE_PACKAGE="bindeb-pkg"
+			IODINE_CONFIG_PACKAGE="bindeb-pkg"
 
 			shift;;
 		--rpm)
-			IODINE_MAKE_PACKAGE="binrpm-pkg"
+			IODINE_CONFIG_PACKAGE="binrpm-pkg"
 
 			shift;;
 		-b|--build)
