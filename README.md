@@ -71,7 +71,7 @@ Since the kernel is compressed using LZ4, be sure to have it installed!
 $ sudo apt install lz4
 ```
 
-For a faster, less safe, experience you could disable the security mitigations editing the GRUB default (/etc/default/grub), appending `migrations=off` to the GRUB_CMDLINE_LINUX_DEFAULT option:
+For a faster, less safe, experience you could disable the security mitigations editing the GRUB default (/etc/default/grub), appending `mitigations=off` to the GRUB_CMDLINE_LINUX_DEFAULT option:
 ```sh
 GRUB_CMDLINE_LINUX_DEFAULT="quiet mitigations=off"
 ```
