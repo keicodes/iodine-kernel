@@ -22,6 +22,7 @@ iodine-usage() {
 	echo -e "  -h, --help				Prints these options\n"
 	echo -e "  -g, --get-kernel			Clones the Linux repository only\n"
 	echo -e "  -p, --apply-patches			Applies patches only\n"
+	echo -e "  -c, --copy-config			Copies the config file in the kernel folder, if none is found\n"
 	echo -e "  -b, --build				Runs over all the commands to build the kernel\n"
 	echo -e "  --deb, --rpm				Packages to either DEB or RPM\n"
 	echo -e "  --generic				Optimizes for generic x86_64 cpus\n"
@@ -71,37 +72,16 @@ iodine-apply-patches() {
 	done
 }
 
-iodine-set-config() {
-	if [ -f ".config" ]; then
+iodine-copy-config() {
+	if [ -f "linux/.config" ]; then
 		echo "  - found an existing config, skipping"
 	else
 		if [ -f $IODINE_LINUX_CONFIG ]; then
-			cp "../$IODINE_LINUX_CONFIG" ".config"
+			cp $IODINE_LINUX_CONFIG "linux/.config"
 		else
 			echo "  - couldn't find any config, exiting"
 
 			exit 1
-		fi
-
-		if [ $IODINE_CONFIG_GENERIC == "y" ]; then
-			echo "  - optimizations set to generic"
-
-			scripts/config --enable GENERIC_CPU
-			scripts/config --disable CONFIG_MNATIVE
-		else
-			echo "  - optimizations set to native"
-
-			scripts/config --enable CONFIG_MNATIVE
-			scripts/config --disable GENERIC_CPU
-		fi
-
-		if [ $IODINE_CONFIG_SIGNING = "y" ]; then
-			echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
-
-			scripts/config --enable CONFIG_MODULE_SIG_ALL
-			scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
-		else
-			scripts/config --disable CONFIG_MODULE_SIG_ALL
 		fi
 	fi
 }
@@ -110,18 +90,37 @@ iodine-set-config() {
 iodine-build() {
 	echo " [*] Building $IODINE_CONFIG_PACKAGE"
 
+	iodine-copy-config
+
 	cd linux
 
-	iodine-set-config
+	if [ $IODINE_CONFIG_GENERIC == "y" ]; then
+		echo "  - using $IODINE_COMPILER, CPU optimizations set to generic, make $IODINE_MAKE_FLAGS"
 
-	echo "  - using $IODINE_COMPILER, make $IODINE_MAKE_FLAGS"
+		scripts/config --enable GENERIC_CPU
+		scripts/config --disable CONFIG_MNATIVE
+	else
+		echo "  - using $IODINE_COMPILER, CPU optimizations set to native, make $IODINE_MAKE_FLAGS"
+
+		scripts/config --enable CONFIG_MNATIVE
+		scripts/config --disable GENERIC_CPU
+	fi
+
+	if [ $IODINE_CONFIG_SIGNING = "y" ]; then
+		echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
+
+		scripts/config --enable CONFIG_MODULE_SIG_ALL
+		scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
+	else
+		scripts/config --disable CONFIG_MODULE_SIG_ALL
+	fi
 
 	make HOSTCC=$IODINE_COMPILER CC=$IODINE_COMPILER $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_CONFIG_PACKAGE
 }
 
 getopt -T &>/dev/null
 
-OPTS=`getopt  -n "$0" -o gpbh --long "get-kernel,apply-patches,generic,sign-modules,deb,rpm,build,help" -- "$@"`
+OPTS=`getopt  -n "$0" -o gpcbh --long "get-kernel,apply-patches,copy-config,generic,sign-modules,deb,rpm,build,help" -- "$@"`
 
 if [ $? != 0 ] || [ -z $1 ]; then iodine-usage >&2; exit 1; fi
 
@@ -136,6 +135,10 @@ do
 			break;;
 		-p|--apply-patches)
 			iodine-apply-patches
+
+			break;;
+		-c|--copy-config)
+			iodine-copy-config
 
 			break;;
 		--generic)

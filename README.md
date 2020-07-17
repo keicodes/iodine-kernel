@@ -49,6 +49,9 @@ Complete usage `./build.sh -h`:
   -p, --apply-patches
   Applies patches only
 
+  -c, --copy-config
+  Copies the config file in the kernel folder, if none is found
+
   -b, --build
   Runs over all the commands to build the kernel
 
