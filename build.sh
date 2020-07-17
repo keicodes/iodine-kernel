@@ -72,7 +72,7 @@ iodine-apply-patches() {
 	done
 }
 
-iodine-copy-config() {
+iodine-set-config() {
 	if [ -f "linux/.config" ]; then
 		echo "  - found an existing config, skipping"
 	else
@@ -90,7 +90,7 @@ iodine-copy-config() {
 iodine-build() {
 	echo " [*] Building $IODINE_CONFIG_PACKAGE"
 
-	iodine-copy-config
+	iodine-set-config
 
 	cd linux
 
