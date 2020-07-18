@@ -41,25 +41,28 @@ Append `--generic` to build a generic kernel.
 Complete usage `./build.sh -h`:
 ```
   -h, --help
-  Prints these options
+  Print these options
 
   -g, --get-kernel
-  Clones the Linux repository only
+  Clone the Linux repository only
 
   -p, --apply-patches
-  Applies patches only
+  Apply patches only
 
-  -c, --copy-config
-  Copies the config file in the kernel folder, if none is found
+  -c, --set-config
+  Generate the kernel config with the selected options
 
   -b, --build
-  Runs over all the commands to build the kernel
+  Run over all the commands to build the kernel
+
+  --llvm
+  Use LLVM
 
   --deb, --rpm
-  Packages to either DEB or RPM
+  Package to either DEB or RPM
 
   --generic
-  Optimizes for generic x86_64 cpus
+  Optimize for generic x86_64 CPUs
 
   --sign-modules
   Signing facility
