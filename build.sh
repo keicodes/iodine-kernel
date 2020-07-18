@@ -9,15 +9,15 @@ IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 IODINE_CONFIG_PACKAGE="bindeb-pkg"
 IODINE_CONFIG_GENERIC="n"
 IODINE_CONFIG_SIGNING="n"
-IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
 
 #	Configurations
 
 IODINE_CC="gcc"
 IODINE_CXX="g++"
-
 IODINE_MAKE_FLAGS="-j`nproc`"
 IODINE_COMPILER_FLAGS="HOSTCC=$IODINE_CC CC=$IODINE_CC HOSTCXX=$IODINE_CXX"
+
+IODINE_CONFIG_SIGNING_KEY="certs/kernel_key.pem"
 
 #	Command line tool usage info
 iodine-usage() {
@@ -90,7 +90,7 @@ iodine-apply-patches() {
 
 iodine-set-config() {
 	if [ -f ".config" ]; then
-		echo "  - found an existing config, skipping"
+		echo "  - using pre-existing config"
 	else
 		if [ -f "../$IODINE_LINUX_CONFIG" ]; then
 			cp "../$IODINE_LINUX_CONFIG" ".config"
@@ -99,38 +99,41 @@ iodine-set-config() {
 
 			exit 1
 		fi
+	fi
 
-		if [ $IODINE_USE_LLVM == "y" ]; then
-			#	This is just set to show the config settings
-			IODINE_HOSTCC="clang"
-			IODINE_CC="clang"
-			IODINE_CXX="clang++"
+	if [ $IODINE_USE_LLVM == "y" ]; then
+		#	This is just set to show the config settings
+		IODINE_HOSTCC="clang"
+		IODINE_CC="clang"
+		IODINE_CXX="clang++"
 
-			IODINE_COMPILER_FLAGS="LLVM=1"
+		IODINE_COMPILER_FLAGS="LLVM=1"
 
-			scripts/config --disable INIT_STACK_ALL
-		fi
+		scripts/config --disable INIT_STACK_ALL
+	fi
 
-		if [ $IODINE_CONFIG_GENERIC == "y" ]; then
-			echo "  - using $IODINE_CC $IODINE_CXX, CPU optimizations set to generic, make $IODINE_MAKE_FLAGS"
+	if [ $IODINE_CONFIG_GENERIC == "y" ]; then
+		IODINE_BUILD_TARGET="generic"
 
-			scripts/config --enable GENERIC_CPU
-			scripts/config --disable CONFIG_MNATIVE
+		scripts/config --enable GENERIC_CPU
+	else
+		#	If it's not a generic build and both generic and native are disabled, then we got a specific type selected, leave it as it is
+		if [ `scripts/config --state GENERIC_CPU` == "n" ] && [ `scripts/config --state CONFIG_MNATIVE` == "n" ]; then
+			IODINE_BUILD_TARGET="custom"
 		else
-			echo "  - using $IODINE_CC $IODINE_CXX, CPU optimizations set to native, make $IODINE_MAKE_FLAGS"
+			IODINE_BUILD_TARGET="native"
 
 			scripts/config --enable CONFIG_MNATIVE
-			scripts/config --disable GENERIC_CPU
 		fi
+	fi
 
-		if [ $IODINE_CONFIG_SIGNING = "y" ]; then
-			echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
+	if [ $IODINE_CONFIG_SIGNING = "y" ]; then
+		echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
 
-			scripts/config --enable CONFIG_MODULE_SIG_ALL
-			scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
-		else
-			scripts/config --disable CONFIG_MODULE_SIG_ALL
-		fi
+		scripts/config --enable CONFIG_MODULE_SIG_ALL
+		scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
+	else
+		scripts/config --disable CONFIG_MODULE_SIG_ALL
 	fi
 }
 
@@ -141,6 +144,8 @@ iodine-build() {
 	cd linux
 
 	iodine-set-config
+
+	echo "  - using $IODINE_CC/$IODINE_CXX, CPU optimizations set to $IODINE_BUILD_TARGET, make $IODINE_MAKE_FLAGS"
 
 	make $IODINE_COMPILER_FLAGS $IODINE_MAKE_FLAGS LOCALVERSION="-iodine" $IODINE_CONFIG_PACKAGE
 }
