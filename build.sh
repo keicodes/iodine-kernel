@@ -101,7 +101,7 @@ iodine-set-config() {
 		fi
 	fi
 
-	if [ $IODINE_USE_LLVM == "y" ]; then
+	if [[ $IODINE_USE_LLVM == "y" ]]; then
 		#	This is just set to show the config settings
 		IODINE_HOSTCC="clang"
 		IODINE_CC="clang"
@@ -112,22 +112,24 @@ iodine-set-config() {
 		scripts/config --disable INIT_STACK_ALL
 	fi
 
-	if [ $IODINE_CONFIG_GENERIC == "y" ]; then
+	if [[ $IODINE_CONFIG_GENERIC == "y" ]]; then
 		IODINE_BUILD_TARGET="generic"
 
+		scripts/config --disable CONFIG_MNATIVE
 		scripts/config --enable GENERIC_CPU
 	else
 		#	If it's not a generic build and both generic and native are disabled, then we got a specific type selected, leave it as it is
-		if [ `scripts/config --state GENERIC_CPU` == "n" ] && [ `scripts/config --state CONFIG_MNATIVE` == "n" ]; then
+		if [[ `scripts/config --state GENERIC_CPU` == "n" ]] && [[ `scripts/config --state CONFIG_MNATIVE` == "n" ]]; then
 			IODINE_BUILD_TARGET="custom"
 		else
 			IODINE_BUILD_TARGET="native"
 
+			scripts/config --disable GENERIC_CPU
 			scripts/config --enable CONFIG_MNATIVE
 		fi
 	fi
 
-	if [ $IODINE_CONFIG_SIGNING = "y" ]; then
+	if [[ $IODINE_CONFIG_SIGNING = "y" ]]; then
 		echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
 
 		scripts/config --enable CONFIG_MODULE_SIG_ALL
