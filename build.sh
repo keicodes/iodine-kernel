@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IODINE_LINUX_REPOSITORY="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-IODINE_LINUX_VERSION="v5.7.9"
+IODINE_LINUX_VERSION="v5.7.10"
 
 IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/[^.]*$/x/'`
 IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"

@@ -19,7 +19,7 @@ Lean and simple performance oriented build of the Linux kernel.
 
 ### Releases
 
-Compiled and packaged on **Debian Buster** using **GCC 10.1.0**
+Compiled and packaged on **Debian Buster** using **GCC 10.2.0**
 
 
 ### Build
