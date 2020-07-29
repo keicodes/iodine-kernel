@@ -89,11 +89,11 @@ iodine-apply-patches() {
 }
 
 iodine-set-config() {
-	if [ -f ".config" ]; then
+	if [[ -f "linux/.config" ]]; then
 		echo "  - using pre-existing config"
 	else
-		if [ -f "../$IODINE_LINUX_CONFIG" ]; then
-			cp "../$IODINE_LINUX_CONFIG" ".config"
+		if [[ -f "$IODINE_LINUX_CONFIG" ]]; then
+			cp "$IODINE_LINUX_CONFIG" "linux/.config"
 		else
 			echo "  - couldn't find any config, exiting"
 
@@ -109,33 +109,33 @@ iodine-set-config() {
 
 		IODINE_COMPILER_FLAGS="LLVM=1"
 
-		scripts/config --disable INIT_STACK_ALL
+		./linux/scripts/config --file "linux/.config" --disable INIT_STACK_ALL
 	fi
 
 	if [[ $IODINE_CONFIG_GENERIC == "y" ]]; then
 		IODINE_BUILD_TARGET="generic"
 
-		scripts/config --disable CONFIG_MNATIVE
-		scripts/config --enable GENERIC_CPU
+		./linux/scripts/config --file "linux/.config" --disable CONFIG_MNATIVE
+		./linux/scripts/config --file "linux/.config" --enable GENERIC_CPU
 	else
 		#	If it's not a generic build and both generic and native are disabled, then we got a specific type selected, leave it as it is
-		if [[ `scripts/config --state GENERIC_CPU` == "n" ]] && [[ `scripts/config --state CONFIG_MNATIVE` == "n" ]]; then
+		if [[ `./linux/scripts/config --file "linux/.config" --state GENERIC_CPU` == "n" ]] && [[ `./linux/scripts/config --file "linux/.config" --state CONFIG_MNATIVE` == "n" ]]; then
 			IODINE_BUILD_TARGET="custom"
 		else
 			IODINE_BUILD_TARGET="native"
 
-			scripts/config --disable GENERIC_CPU
-			scripts/config --enable CONFIG_MNATIVE
+			./linux/scripts/config --file "linux/.config" --disable GENERIC_CPU
+			./linux/scripts/config --file "linux/.config" --enable CONFIG_MNATIVE
 		fi
 	fi
 
 	if [[ $IODINE_CONFIG_SIGNING = "y" ]]; then
 		echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
 
-		scripts/config --enable CONFIG_MODULE_SIG_ALL
-		scripts/config --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
+		./linux/scripts/config --file "linux/.config" --enable CONFIG_MODULE_SIG_ALL
+		./linux/scripts/config --file "linux/.config" --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
 	else
-		scripts/config --disable CONFIG_MODULE_SIG_ALL
+		./linux/scripts/config --file "linux/.config" --disable CONFIG_MODULE_SIG_ALL
 	fi
 }
 
@@ -143,9 +143,9 @@ iodine-set-config() {
 iodine-build() {
 	echo " [*] Building $IODINE_CONFIG_PACKAGE"
 
-	cd linux
-
 	iodine-set-config
+
+	cd linux
 
 	echo "  - using $IODINE_CC/$IODINE_CXX, CPU optimizations set to $IODINE_BUILD_TARGET, make $IODINE_MAKE_FLAGS"
 
