@@ -1,9 +1,10 @@
 #!/bin/bash
 
 IODINE_LINUX_REPOSITORY="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-IODINE_LINUX_VERSION="v5.7.12"
+IODINE_LINUX_VERSION="v5.7.13"
 
-IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/.[0-9]\{1,3\}//3; s/$/.x/'`
+IODINE_LINUX_FOLDER="linux-$IODINE_LINUX_VERSION"
+IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/[^.]*$/x/'`
 IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
 
 IODINE_CONFIG_PACKAGE="bindeb-pkg"
@@ -62,14 +63,14 @@ iodine-check-compiler() {
 
 #	Clone the chosen branch if doesn't exists
 iodine-get-kernel() {
-	if [ ! -d "linux" ]; then
+	if [ ! -d "$IODINE_LINUX_FOLDER" ]; then
 		echo " [*] Fetching kernel $IODINE_LINUX_VERSION"
 
-		git clone --single-branch --depth 1 -b $IODINE_LINUX_VERSION $IODINE_LINUX_REPOSITORY
+		git clone --single-branch --depth 1 -b $IODINE_LINUX_VERSION $IODINE_LINUX_REPOSITORY $IODINE_LINUX_FOLDER
 	else
 		echo " [*] Kernel folder found"
 
-		if [ `make -sC linux kernelversion` == ${IODINE_LINUX_VERSION[@]:1} ]; then
+		if [ `make -sC $IODINE_LINUX_FOLDER kernelversion` == ${IODINE_LINUX_VERSION[@]:1} ]; then
 			echo "  - kernel version matches"
 		else
 			echo "  - it appears to be a different kernel version, exiting"
@@ -84,16 +85,16 @@ iodine-apply-patches() {
 	echo " [*] Applying patches $IODINE_LINUX_BRANCH"
 
 	for patch in patches/$IODINE_LINUX_BRANCH/*.patch; do
-		patch -sNp1 -dlinux < $patch
+		patch -sNp1 -d$IODINE_LINUX_FOLDER < $patch
 	done
 }
 
 iodine-set-config() {
-	if [[ -f "linux/.config" ]]; then
+	if [[ -f "$IODINE_LINUX_FOLDER/.config" ]]; then
 		echo "  - using pre-existing config"
 	else
 		if [[ -f "$IODINE_LINUX_CONFIG" ]]; then
-			cp "$IODINE_LINUX_CONFIG" "linux/.config"
+			cp "$IODINE_LINUX_CONFIG" "$IODINE_LINUX_FOLDER/.config"
 		else
 			echo "  - couldn't find any config, exiting"
 
@@ -109,33 +110,33 @@ iodine-set-config() {
 
 		IODINE_COMPILER_FLAGS="LLVM=1"
 
-		./linux/scripts/config --file "linux/.config" --disable INIT_STACK_ALL
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --disable INIT_STACK_ALL
 	fi
 
 	if [[ $IODINE_CONFIG_GENERIC == "y" ]]; then
 		IODINE_BUILD_TARGET="generic"
 
-		./linux/scripts/config --file "linux/.config" --disable CONFIG_MNATIVE
-		./linux/scripts/config --file "linux/.config" --enable GENERIC_CPU
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --disable CONFIG_MNATIVE
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --enable GENERIC_CPU
 	else
 		#	If it's not a generic build and both generic and native are disabled, then we got a specific type selected, leave it as it is
-		if [[ `./linux/scripts/config --file "linux/.config" --state GENERIC_CPU` == "n" ]] && [[ `./linux/scripts/config --file "linux/.config" --state CONFIG_MNATIVE` == "n" ]]; then
+		if [[ `./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --state GENERIC_CPU` == "n" ]] && [[ `./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --state CONFIG_MNATIVE` == "n" ]]; then
 			IODINE_BUILD_TARGET="custom"
 		else
 			IODINE_BUILD_TARGET="native"
 
-			./linux/scripts/config --file "linux/.config" --disable GENERIC_CPU
-			./linux/scripts/config --file "linux/.config" --enable CONFIG_MNATIVE
+			./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --disable GENERIC_CPU
+			./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --enable CONFIG_MNATIVE
 		fi
 	fi
 
 	if [[ $IODINE_CONFIG_SIGNING = "y" ]]; then
 		echo "  - signing enabled with $IODINE_CONFIG_SIGNING_KEY key"
 
-		./linux/scripts/config --file "linux/.config" --enable CONFIG_MODULE_SIG_ALL
-		./linux/scripts/config --file "linux/.config" --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --enable CONFIG_MODULE_SIG_ALL
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --set-str CONFIG_MODULE_SIG_KEY $IODINE_CONFIG_SIGNING_KEY
 	else
-		./linux/scripts/config --file "linux/.config" --disable CONFIG_MODULE_SIG_ALL
+		./$IODINE_LINUX_FOLDER/scripts/config --file "$IODINE_LINUX_FOLDER/.config" --disable CONFIG_MODULE_SIG_ALL
 	fi
 }
 
@@ -145,7 +146,7 @@ iodine-build() {
 
 	iodine-set-config
 
-	cd linux
+	cd $IODINE_LINUX_FOLDER
 
 	echo "  - using $IODINE_CC/$IODINE_CXX, CPU optimizations set to $IODINE_BUILD_TARGET, make $IODINE_MAKE_FLAGS"
 
