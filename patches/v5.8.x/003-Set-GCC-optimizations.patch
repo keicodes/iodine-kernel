@@ -1,0 +1,28 @@
+--- a/Makefile
++++ b/Makefile
+@@ -701,7 +701,7 @@
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
+ 
+ ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
+-KBUILD_CFLAGS += -O2
++KBUILD_CFLAGS += -O3
+ else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
+ KBUILD_CFLAGS += -O3
+ else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1237,10 +1237,10 @@
+ 	default CC_OPTIMIZE_FOR_PERFORMANCE
+ 
+ config CC_OPTIMIZE_FOR_PERFORMANCE
+-	bool "Optimize for performance (-O2)"
++	bool "Optimize for performance (-O3)"
+ 	help
+ 	  This is the default optimization level for the kernel, building
+-	  with the "-O2" compiler flag for best performance and most
++	  with the "-O3" compiler flag for best performance and most
+ 	  helpful compile-time warnings.
+ 
+ config CC_OPTIMIZE_FOR_PERFORMANCE_O3
+
