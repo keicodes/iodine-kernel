@@ -2,7 +2,7 @@
 
 Lean and simple performance oriented build of the Linux kernel.
 
-Every change aims to maintain - or, possibly, decrease - the power usage-to-performance ratio.
+Every change aims to maintain - or, possibly, optimize - the power usage-to-performance ratio.
 
 [![license: WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
 
