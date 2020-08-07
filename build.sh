@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IODINE_LINUX_REPOSITORY="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-IODINE_LINUX_VERSION="v5.7.13"
+IODINE_LINUX_VERSION="v5.8"
 
 IODINE_LINUX_FOLDER="linux-$IODINE_LINUX_VERSION"
 IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/.[0-9]\{1,3\}//3; s/$/.x/'`
@@ -70,7 +70,14 @@ iodine-get-kernel() {
 	else
 		echo " [*] Kernel folder found"
 
-		if [ `make -sC $IODINE_LINUX_FOLDER kernelversion` == ${IODINE_LINUX_VERSION[@]:1} ]; then
+		#	Fix no patchset version
+		if [ `echo ${IODINE_LINUX_VERSION[@]:1} | tr -dc '.' | wc -c` ]; then
+			IODINE_LINUX_CORRECT_VERSION="${IODINE_LINUX_VERSION[@]:1}.0"
+		else
+			IODINE_LINUX_CORRECT_VERSION="${IODINE_LINUX_VERSION[@]:1}"
+		fi
+
+		if [ `make -sC $IODINE_LINUX_FOLDER kernelversion` == $IODINE_LINUX_CORRECT_VERSION ]; then
 			echo "  - kernel version matches"
 		else
 			echo "  - it appears to be a different kernel version, exiting"
