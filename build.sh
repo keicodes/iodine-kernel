@@ -71,7 +71,7 @@ iodine-get-kernel() {
 		echo " [*] Kernel folder found"
 
 		#	Fix no patchset version
-		if [ `echo ${IODINE_LINUX_VERSION[@]:1} | tr -dc '.' | wc -c` ]; then
+		if [ `echo ${IODINE_LINUX_VERSION[@]:1} | tr -dc '.' | wc -c` -lt 2 ]; then
 			IODINE_LINUX_CORRECT_VERSION="${IODINE_LINUX_VERSION[@]:1}.0"
 		else
 			IODINE_LINUX_CORRECT_VERSION="${IODINE_LINUX_VERSION[@]:1}"
