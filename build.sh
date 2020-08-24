@@ -5,7 +5,9 @@ IODINE_LINUX_VERSION="v5.8.3"
 
 IODINE_LINUX_FOLDER="linux-$IODINE_LINUX_VERSION"
 IODINE_LINUX_BRANCH=`echo $IODINE_LINUX_VERSION | sed 's/.[0-9]\{1,3\}//3; s/$/.x/'`
-IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH/$IODINE_LINUX_VERSION"
+
+IODINE_LINUX_CONFIG="configs/$IODINE_LINUX_BRANCH.config"
+IODINE_LINUX_PATCHES="patches/$IODINE_LINUX_BRANCH"
 
 IODINE_CONFIG_PACKAGE="bindeb-pkg"
 IODINE_CONFIG_GENERIC="n"
@@ -15,6 +17,7 @@ IODINE_CONFIG_SIGNING="n"
 
 IODINE_CC="gcc"
 IODINE_CXX="g++"
+
 IODINE_MAKE_FLAGS="-j`nproc`"
 IODINE_COMPILER_FLAGS="HOSTCC=$IODINE_CC CC=$IODINE_CC HOSTCXX=$IODINE_CXX"
 
@@ -91,11 +94,12 @@ iodine-get-kernel() {
 iodine-apply-patches() {
 	echo " [*] Applying patches $IODINE_LINUX_BRANCH"
 
-	for patch in patches/$IODINE_LINUX_BRANCH/*.patch; do
+	for patch in $IODINE_LINUX_PATCHES/*.patch; do
 		patch -sNp1 -d$IODINE_LINUX_FOLDER < $patch
 	done
 }
 
+#	Copies the config and sets various options
 iodine-set-config() {
 	if [[ -f "$IODINE_LINUX_FOLDER/.config" ]]; then
 		echo "  - using pre-existing config"
