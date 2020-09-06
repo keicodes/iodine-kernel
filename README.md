@@ -10,7 +10,7 @@ Every change aims to maintain - or, possibly, optimize - the power usage-to-perf
 ### Features
 
 - Kernel compression mode LZ4
-- BMQ Process Scheduler
+- PDS Process Scheduler
 - BFQ I/O Scheduler
 - Swap Pages LZ4/z3fold
 - Westwood+ TCP Congestion Control + FQ_CODEL Queue Scheduler
