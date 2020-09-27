@@ -22,7 +22,7 @@ Every change aims to maintain - or, possibly, optimize - the power usage-to-perf
 
 ### Releases
 
-Compiled and packaged on **Debian Buster** using **GCC 10.2.0**
+Compiled and packaged on **Debian Bullseye** using **GCC 10.2.0**
 
 
 ### Build
