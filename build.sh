@@ -178,15 +178,15 @@ do
 		-g|--get-kernel)
 			iodine-get-kernel
 
-			break;;
+			shift;;
 		-p|--apply-patches)
 			iodine-apply-patches
 
-			break;;
+			shift;;
 		-c|--set-config)
 			iodine-set-config
 
-			break;;
+			shift;;
 		--llvm)
 			IODINE_USE_LLVM="y"
 
