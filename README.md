@@ -31,12 +31,12 @@ Optionally, before jumping to the actual build, you may wish to edit the `iodine
 
 To build a DEB package (you could omit --deb as it's the default option), use:
 ```sh
-./iodine.sh --deb --build
+./iodine.sh -gpc --deb --build
 ```
 
 for a RPM package, use:
 ```sh
-./iodine.sh --rpm --build
+./iodine.sh -gpc --rpm --build
 ```
 
 Append `--generic` to build a generic kernel.
