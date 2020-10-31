@@ -986,7 +986,7 @@ index 000000000000..fa0ba0d55503
 +	while (!cpumask_and(&t, chk, m))
 +		chk++;
 +
-+	return cpumask_any(t);
++	return cpumask_any(&t);
 +}
 +#endif
 +
