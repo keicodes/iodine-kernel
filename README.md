@@ -27,21 +27,21 @@ Pre-built releases no more provided
 
 ### Build
 
-Optionally, before jumping to the actual build, you may wish to edit the `build.sh` to set your personal configs under `Configurations`.
+Optionally, before jumping to the actual build, you may wish to edit the `iodine.sh` to set your personal configs under `Configurations`.
 
 To build a DEB package (you could omit --deb as it's the default option), use:
 ```sh
-./build.sh --deb --build
+./iodine.sh --deb --build
 ```
 
 for a RPM package, use:
 ```sh
-./build.sh --rpm --build
+./iodine.sh --rpm --build
 ```
 
 Append `--generic` to build a generic kernel.
 
-Complete usage `./build.sh -h`:
+Complete usage `./iodine.sh -h`:
 ```
   -h, --help
   Print these options
@@ -71,7 +71,7 @@ Complete usage `./build.sh -h`:
   Signing facility
 ```
 
-To sign the modules, proceed to update the option in the build.sh file to `IODINE_SIGNING="y"` and use `IODINE_SIGNING_KEY` to assign the signing key path.
+To sign the modules, proceed to update the option in the iodine.sh file to `IODINE_SIGNING="y"` and use `IODINE_SIGNING_KEY` to assign the signing key path.
 
 ### Requirements
 
