@@ -210,10 +210,6 @@ do
 		-b|--build)
 			iodine-check-compiler
 
-			iodine-get-kernel
-
-			iodine-apply-patches
-
 			IODINE_BUILD="y"
 
 			shift;;
