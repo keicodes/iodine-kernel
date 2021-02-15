@@ -1,0 +1,11 @@
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -624,7 +624,7 @@
+ 	if (q->nr_hw_queues != 1)
+ 		return NULL;
+ 
+-	return elevator_get(q, "mq-deadline", false);
++	return elevator_get(q, "none", false);
+ }
+ 
+ /*
